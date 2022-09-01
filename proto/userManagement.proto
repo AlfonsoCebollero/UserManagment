@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package grpc;
+
+import "google/api/annotations.proto";
+option go_package = "/proto";
+
+message User {
+  string first_name = 1;
+  string last_name = 2;
+  string email = 3;
+  optional string nickname = 4;
+  string password = 5;
+  string country = 6;
+}
+
+message UserActionResponse {
+  string id = 1;
+  User user = 2;
+}
+
+message DeletionActionResponse {
+  bool deleted = 1;
+}
+
+message ListActionResponse {
+  repeated UserActionResponse users = 1;
+}
+
+message GetUserReq {
+  string user_id = 1;
+}
+
+message CreateUserReq {
+  User user = 1;
+}
+
+message UpdateUserReq {
+  string user_id = 1;
+  User user = 2;
+}
+
+message DeleteUserReq {
+  string user_id = 1;
+}
+
+message ListUsersReq {}
+
+service UserManagement {
+  rpc CreateUser(CreateUserReq) returns (UserActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/users"
+      body: "user"
+    };
+  }
+
+  rpc GetUser(GetUserReq) returns (UserActionResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/{user_id}"
+    };
+  }
+
+  rpc UpdateUser(UpdateUserReq) returns (UserActionResponse) {
+    option (google.api.http) = {
+      put: "/v1/users/{user_id}",
+      body: "user",
+    };
+  }
+
+  rpc DeleteUser(DeleteUserReq) returns (DeletionActionResponse) {
+    option (google.api.http) = {
+      delete: "/v1/users/{user_id}"
+    };
+  }
+
+  rpc ListUsers(ListUsersReq) returns (ListActionResponse) {
+    option (google.api.http) = {
+      get: "/v1/users"
+    };
+  }
+}
