@@ -1,8 +1,26 @@
 syntax = "proto3";
 
-package grpc;
-
 import "google/api/annotations.proto";
+import "grpc-gateway/protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "User management";
+    version: "1.0";
+    contact: {
+      name: "Alfonso Cebollero";
+      url: "https://github.com/AlfonsoCebollero/UserManagement";
+      email: "alfonso.cebollero.acm@gmail.com";
+    };
+  };
+
+  schemes: HTTP;
+  schemes: HTTPS;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+package userManagement;
 option go_package = "/proto";
 
 message User {
@@ -17,6 +35,9 @@ message User {
 message UserActionResponse {
   string id = 1;
   User user = 2;
+  string createdAt = 3;
+  string updatedAt = 4;
+
 }
 
 message DeletionActionResponse {
@@ -31,7 +52,7 @@ message GetUserReq {
   string user_id = 1;
 }
 
-message CreateUserReq {
+message  CreateUserReq {
   User user = 1;
 }
 
