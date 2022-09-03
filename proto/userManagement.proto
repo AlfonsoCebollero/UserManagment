@@ -27,7 +27,7 @@ message User {
   string first_name = 1;
   string last_name = 2;
   string email = 3;
-  optional string nickname = 4;
+  string nickname = 4;
   string password = 5;
   string country = 6;
 }
@@ -65,7 +65,9 @@ message DeleteUserReq {
   string user_id = 1;
 }
 
-message ListUsersReq {}
+message ListUsersReq {
+  User filter = 1;
+}
 
 service UserManagement {
   rpc CreateUser(CreateUserReq) returns (UserActionResponse) {

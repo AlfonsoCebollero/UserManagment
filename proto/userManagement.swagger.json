@@ -42,6 +42,44 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "filter.firstName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter.lastName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter.email",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter.nickname",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter.password",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter.country",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "tags": [
           "UserManagement"
         ]
@@ -254,7 +292,7 @@
         "createdAt": {
           "type": "string"
         },
-        "updatedA": {
+        "updatedAt": {
           "type": "string"
         }
       }
