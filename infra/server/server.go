@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"log"
-	"time"
 	"userManagement/infra/database"
 	pb "userManagement/proto"
 )
@@ -22,18 +21,51 @@ func (s *UserManagementServer) CreateUser(ctx context.Context, in *pb.CreateUser
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("User created!")
 
-	return &pb.UserActionResponse{
-		Id: userId,
-		User: &pb.User{
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Email:     user.Email,
-			Nickname:  user.Nickname,
-			Password:  user.Password,
-			Country:   user.Country,
-		},
-		CreatedAt: time.Now().String(),
-		UpdatedAt: time.Now().String(),
-	}, nil
+	createdUser, err := s.GetUser(ctx, &pb.GetUserReq{UserId: userId})
+
+	if err != nil {
+		log.Printf("Could not retrieve created user data")
+		return nil, err
+	}
+
+	return createdUser, nil
+}
+
+func (s *UserManagementServer) GetUser(ctx context.Context, in *pb.GetUserReq) (*pb.UserActionResponse, error) {
+	user, err := s.DbClient.GetUser(in)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (s *UserManagementServer) UpdateUser(ctx context.Context, in *pb.UpdateUserReq) (*pb.UserActionResponse, error) {
+	user, err := s.DbClient.UpdateUser(in)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (s *UserManagementServer) DeleteUser(ctx context.Context, in *pb.DeleteUserReq) (*pb.DeletionActionResponse, error) {
+	_, err := s.DbClient.DeleteUser(in)
+
+	if err != nil {
+		return &pb.DeletionActionResponse{Deleted: false}, err
+	}
+
+	return &pb.DeletionActionResponse{Deleted: true}, nil
+}
+
+func (s *UserManagementServer) ListUsers(ctx context.Context, in *pb.ListUsersReq) (*pb.ListActionResponse, error) {
+	users, err := s.DbClient.GetAllUsers(in)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
