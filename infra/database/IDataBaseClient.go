@@ -4,7 +4,8 @@ import pb "userManagement/proto"
 
 type AdapterInterface interface {
 	CreateUser(req *pb.CreateUserReq) (string, error)
-	//UpdateUser(proto.UpdateUserReq) error
-	//DeleteUser(proto.DeleteUserReq) error
-	//GetAllUsers() error
+	GetUser(req *pb.GetUserReq) (*pb.UserActionResponse, error)
+	UpdateUser(req *pb.UpdateUserReq) (*pb.UserActionResponse, error)
+	DeleteUser(req *pb.DeleteUserReq) (*pb.DeletionActionResponse, error)
+	GetAllUsers(req *pb.ListUsersReq) (*pb.ListActionResponse, error)
 }
