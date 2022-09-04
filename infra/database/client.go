@@ -117,7 +117,8 @@ func (m *MongoClient) UpdateUser(req *pb.UpdateUserReq) (*pb.UserActionResponse,
 		{"updated_at", time.Now()}}}}
 
 	var updatedUser entities.User
-	err := m.Collection.FindOneAndUpdate(context.TODO(), filter, update).Decode(&updatedUser)
+	m.Collection.FindOneAndUpdate(context.TODO(), filter, update)
+	err := m.Collection.FindOne(context.TODO(), filter).Decode(&updatedUser)
 
 	if err != nil {
 		msg := "Could not update user with id %s: %v"
@@ -148,30 +149,36 @@ func (m *MongoClient) DeleteUser(req *pb.DeleteUserReq) (*pb.DeletionActionRespo
 func (m *MongoClient) GetAllUsers(req *pb.ListUsersReq) (*pb.ListActionResponse, error) {
 	filter := req.Filter
 
-	filterMap := entities.User{
-		FirstName: filter.FirstName,
-		LastName:  filter.LastName,
-		Nickname:  filter.Nickname,
-		Email:     filter.Email,
-		Country:   filter.Country,
-	}
-	var mongoFilter bson.D
-	mFilter, err := bson.Marshal(filterMap)
-	if err != nil {
-		return nil, err
-	}
-	_ = bson.Unmarshal(mFilter, &mongoFilter)
+	var cursor *mongo.Cursor
 
-	cursor, err := m.Collection.Find(context.TODO(), mongoFilter)
-	if err != nil {
-		return nil, err
+	if filter == nil {
+		cursor, _ = m.Collection.Find(context.TODO(), bson.D{{}})
+	} else {
+		filterUser := entities.User{
+			FirstName: filter.FirstName,
+			LastName:  filter.LastName,
+			Nickname:  filter.Nickname,
+			Email:     filter.Email,
+			Country:   filter.Country,
+		}
+		var mongoFilter bson.D
+		mFilter, err := bson.Marshal(filterUser)
+		if err != nil {
+			return nil, err
+		}
+		_ = bson.Unmarshal(mFilter, &mongoFilter)
+
+		cursor, err = m.Collection.Find(context.TODO(), mongoFilter)
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	var results []entities.User
 	pbResults := pb.ListActionResponse{
 		Users: []*pb.UserActionResponse{},
 	}
-
-	err = cursor.All(context.TODO(), &results)
+	err := cursor.All(context.TODO(), &results)
 	if err != nil {
 		return nil, err
 	}
