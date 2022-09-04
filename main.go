@@ -27,25 +27,21 @@ func runAPIServer() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	// Connect to the GRPC server
-	conn, err := grpc.Dial("localhost:5566", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("fail to dial: %v", err)
-	}
-	defer conn.Close()
+	dopts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	// Register grpc-gateway
 	rmux := runtime.NewServeMux()
-	client := pb.NewUserManagementClient(conn)
-	err = pb.RegisterUserManagementHandlerClient(ctx, rmux, client)
+	err := pb.RegisterUserManagementHandlerFromEndpoint(ctx, rmux, "localhost:5566", dopts)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	// Serve the swagger-ui and swagger file
 	mux := http.NewServeMux()
 	mux.Handle("/", rmux)
 	mux.HandleFunc("/swagger.json", serveSwagger)
 	sh := http.StripPrefix("/swagger/", http.FileServer(http.Dir("./swagger/")))
-	mux.Handle("/swagger-ui/", sh)
+	mux.Handle("/swagger/", sh)
 	log.Println("REST server ready...")
 	err = http.ListenAndServe("localhost:8081", mux)
 	if err != nil {
