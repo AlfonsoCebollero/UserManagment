@@ -5,12 +5,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
-	"time"
 	pb "userManagement/proto"
 )
 
 const (
-	address = "localhost:50051"
+	address = "localhost:5566"
 )
 
 func main() {
@@ -27,23 +26,18 @@ func main() {
 
 	c := pb.NewUserManagementClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	user, err := c.CreateUser(ctx, &pb.CreateUserReq{
-		User: &pb.User{
-			FirstName: "Alfonso",
-			LastName:  "Cebollero",
-			Email:     "a@gmail.com",
-			Nickname:  nil,
-			Password:  "1234",
-			Country:   "ES",
-		},
-	})
+	changeStream, err := c.NotifyUserChanges(context.TODO(), &pb.EmptyMsg{})
 	if err != nil {
-		log.Fatalf("Error while creating user %v", err)
+		log.Printf("There was an error when recieving changes: %v", err)
+		return
 	}
-	log.Printf("user details %v", user)
-	return
 
+	for {
+		var notification pb.UserActionStream
+		err := changeStream.RecvMsg(&notification)
+		if err != nil {
+			log.Printf("Failed when recieving change: %v", err)
+		}
+		log.Printf(notification.Action)
+	}
 }
