@@ -18,10 +18,11 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// UserManagementClient is the grpc_client API for UserManagement service.
+// UserManagementClient is the client API for UserManagement service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserManagementClient interface {
+	NotifyUserChanges(ctx context.Context, in *EmptyMsg, opts ...grpc.CallOption) (UserManagement_NotifyUserChangesClient, error)
 	CreateUser(ctx context.Context, in *CreateUserReq, opts ...grpc.CallOption) (*UserActionResponse, error)
 	GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*UserActionResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserReq, opts ...grpc.CallOption) (*UserActionResponse, error)
@@ -35,6 +36,38 @@ type userManagementClient struct {
 
 func NewUserManagementClient(cc grpc.ClientConnInterface) UserManagementClient {
 	return &userManagementClient{cc}
+}
+
+func (c *userManagementClient) NotifyUserChanges(ctx context.Context, in *EmptyMsg, opts ...grpc.CallOption) (UserManagement_NotifyUserChangesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &UserManagement_ServiceDesc.Streams[0], "/userManagement.UserManagement/NotifyUserChanges", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &userManagementNotifyUserChangesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type UserManagement_NotifyUserChangesClient interface {
+	Recv() (*UserActionStream, error)
+	grpc.ClientStream
+}
+
+type userManagementNotifyUserChangesClient struct {
+	grpc.ClientStream
+}
+
+func (x *userManagementNotifyUserChangesClient) Recv() (*UserActionStream, error) {
+	m := new(UserActionStream)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *userManagementClient) CreateUser(ctx context.Context, in *CreateUserReq, opts ...grpc.CallOption) (*UserActionResponse, error) {
@@ -86,6 +119,7 @@ func (c *userManagementClient) ListUsers(ctx context.Context, in *ListUsersReq, 
 // All implementations must embed UnimplementedUserManagementServer
 // for forward compatibility
 type UserManagementServer interface {
+	NotifyUserChanges(*EmptyMsg, UserManagement_NotifyUserChangesServer) error
 	CreateUser(context.Context, *CreateUserReq) (*UserActionResponse, error)
 	GetUser(context.Context, *GetUserReq) (*UserActionResponse, error)
 	UpdateUser(context.Context, *UpdateUserReq) (*UserActionResponse, error)
@@ -98,6 +132,9 @@ type UserManagementServer interface {
 type UnimplementedUserManagementServer struct {
 }
 
+func (UnimplementedUserManagementServer) NotifyUserChanges(*EmptyMsg, UserManagement_NotifyUserChangesServer) error {
+	return status.Errorf(codes.Unimplemented, "method NotifyUserChanges not implemented")
+}
 func (UnimplementedUserManagementServer) CreateUser(context.Context, *CreateUserReq) (*UserActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
@@ -124,6 +161,27 @@ type UnsafeUserManagementServer interface {
 
 func RegisterUserManagementServer(s grpc.ServiceRegistrar, srv UserManagementServer) {
 	s.RegisterService(&UserManagement_ServiceDesc, srv)
+}
+
+func _UserManagement_NotifyUserChanges_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(EmptyMsg)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(UserManagementServer).NotifyUserChanges(m, &userManagementNotifyUserChangesServer{stream})
+}
+
+type UserManagement_NotifyUserChangesServer interface {
+	Send(*UserActionStream) error
+	grpc.ServerStream
+}
+
+type userManagementNotifyUserChangesServer struct {
+	grpc.ServerStream
+}
+
+func (x *userManagementNotifyUserChangesServer) Send(m *UserActionStream) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 func _UserManagement_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -244,6 +302,12 @@ var UserManagement_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserManagement_ListUsers_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "NotifyUserChanges",
+			Handler:       _UserManagement_NotifyUserChanges_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "userManagement.proto",
 }

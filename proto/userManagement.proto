@@ -69,7 +69,15 @@ message ListUsersReq {
   User filter = 1;
 }
 
+message EmptyMsg {}
+
+message UserActionStream {
+  string action = 1;
+}
+
 service UserManagement {
+  rpc NotifyUserChanges (EmptyMsg) returns (stream UserActionStream);
+
   rpc CreateUser(CreateUserReq) returns (UserActionResponse) {
     option (google.api.http) = {
       post: "/v1/users"
@@ -101,4 +109,5 @@ service UserManagement {
       get: "/v1/users"
     };
   }
+
 }
