@@ -34,7 +34,7 @@ func (s *UserManagementServer) CreateUser(ctx context.Context, in *pb.CreateUser
 		return nil, err
 	}
 
-	s.notify(in.User.String(), "Created")
+	go s.notify(in.User.String(), "Created")
 	return createdUser, nil
 }
 
@@ -46,7 +46,7 @@ func (s *UserManagementServer) GetUser(ctx context.Context, in *pb.GetUserReq) (
 		return nil, err
 	}
 
-	s.notify(in.UserId, "Retrieved")
+	go s.notify(in.UserId, "Retrieved")
 	return user, nil
 }
 
@@ -58,7 +58,7 @@ func (s *UserManagementServer) UpdateUser(ctx context.Context, in *pb.UpdateUser
 		return nil, err
 	}
 
-	s.notify(in.UserId, "Updated")
+	go s.notify(in.UserId, "Updated")
 	return user, nil
 }
 
@@ -71,7 +71,7 @@ func (s *UserManagementServer) DeleteUser(ctx context.Context, in *pb.DeleteUser
 		return &pb.DeletionActionResponse{Deleted: false}, err
 	}
 
-	s.notify(in.UserId, "Deleted")
+	go s.notify(in.UserId, "Deleted")
 	return &pb.DeletionActionResponse{Deleted: true}, nil
 }
 
@@ -91,7 +91,7 @@ func (s *UserManagementServer) NotifyUserChanges(msg *pb.EmptyMsg, server pb.Use
 		select {
 		case n := <-s.NotifyChannel:
 			notification := pb.UserActionStream{}
-			action := fmt.Sprintf("User action performed: %s - was %s", n[0], n[1])
+			action := fmt.Sprintf("User action performed: %s - %s", n[0], n[1])
 			notification.Action = action
 
 			err := server.Send(&notification)
@@ -107,4 +107,5 @@ func (s *UserManagementServer) NotifyUserChanges(msg *pb.EmptyMsg, server pb.Use
 func (s *UserManagementServer) notify(userEmail, action string) {
 	notification := []string{userEmail, action}
 	s.NotifyChannel <- notification
+	return
 }
