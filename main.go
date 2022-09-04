@@ -64,7 +64,8 @@ func main() {
 
 	s := grpc.NewServer()
 	pb.RegisterUserManagementServer(s, &server.UserManagementServer{
-		DbClient: database.DBClient,
+		DbClient:      database.DBClient,
+		NotifyChannel: make(chan []string),
 	})
 	log.Printf("Server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
