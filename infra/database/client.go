@@ -138,7 +138,7 @@ func (m *MongoClient) DeleteUser(req *pb.DeleteUserReq) (*pb.DeletionActionRespo
 
 	_, err := m.Collection.DeleteOne(context.TODO(), filter)
 	if err != nil {
-		msg := "Could not update user with id %s: %v"
+		msg := "Could not delete user with id %s: %v"
 		return nil, handleActionError(id, msg, err)
 	}
 
