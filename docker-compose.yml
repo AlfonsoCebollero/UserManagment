@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  mongo:
+    image: mongo
+    expose:
+      - "27017"
+    ports:
+      - "27017:27017"
+  grpc-server:
+    build: .
+    ports:
+      - "8081:8081"
+      - "5566:5566"
+    depends_on:
+      - mongo
+  notification-consumer:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile2
+    depends_on:
+      - grpc-server
