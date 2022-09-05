@@ -66,6 +66,16 @@ As it can be seen in the diagram at the beginning of this Readme, there is a not
 
 ![image](https://user-images.githubusercontent.com/34543261/188351029-0e4b8105-c8ee-4bc8-8d02-c876787746bd.png)
 
+This feature should be improved to be able to stream the notifications to more than one client, or maybe make this notification receiver kind of a middleware that receives notifications, process them, and later on sends them where it is needed.
+
+## About the tests
+Inside the tests folder two files can be found. One for the grpc server and client methods and the other for mongodb client operations. The first file's tests are prepared to be run in any environment due to the fact that all the external needed resources are mocked. On the other hand, the mongo client tests require of a mongodb instance running on port 27017, which can be easily accomplished using docker:
+
+```
+>> docker run -d -p 27017:27017 --name test-mongo mongo:latest
+```
+
+
 
 
 
