@@ -19,7 +19,7 @@ var (
 
 func init() {
 	// mongo connection initialization
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/")
+	clientOptions := options.Client().ApplyURI("mongodb://host.docker.internal:27017/")
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)

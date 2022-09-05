@@ -20,5 +20,7 @@ RUN ls -la
 FROM gcr.io/distroless/base-debian10
 WORKDIR /
 EXPOSE 8081
+EXPOSE 5566
+COPY ./swagger ./swagger
 COPY --from=build /go/src/service /app
 CMD ["./app/app"]
