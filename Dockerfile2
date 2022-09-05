@@ -1,0 +1,25 @@
+# syntax=docker/dockerfile:1
+
+##
+## Build
+##
+FROM golang:1.18-buster AS build
+
+WORKDIR /go/src/
+
+COPY ./ ./service
+
+WORKDIR /go/src/service/
+RUN ls -la
+
+RUN go mod download
+
+WORKDIR /go/src/service/notificationConsumer
+
+RUN go build -o app ./
+RUN ls -la
+
+FROM gcr.io/distroless/base-debian10
+WORKDIR /
+COPY --from=build /go/src/service/notificationConsumer /app
+CMD ["./app/app"]
