@@ -5,7 +5,7 @@
 ![image](https://user-images.githubusercontent.com/34543261/188322736-b154d6d3-430e-4e1f-8954-2666c651877a.png)
 
 This service implements a grpc server which publishes an API to perform user management actions against a database.
-In the docker-compose, the above arquitecture is deployed, whhich consists of the server, the database and a client consuming a server-side streaming which simulates another service receiving notifications.
+In the docker-compose, the above arquitecture is deployed, which consists of the server, the database and a client consuming a server-side streaming which simulates another service receiving notifications.
 
 When a user action is performed, a notification is sent through the stream and received by the client, which logs a message containing a brief description of the action performed.
 
@@ -31,7 +31,7 @@ From /proto directory execute the following commands:
 ![image](https://user-images.githubusercontent.com/34543261/188349517-5c314e2e-dc07-4fbe-92fd-33a3665bbd04.png)
 
 ## Swagger
-To complement the deployment and have a better understanding of how the different API endpoints from the service work, there is a swagger UI available on localhost:8081 after deploying the service.
+To complement the deployment and have a better understanding of how the different API endpoints from the service work, there is a swagger UI available on localhost:8081/swagger/ after deploying the service.
 
 ![image](https://user-images.githubusercontent.com/34543261/188349748-0bdba5c5-f46f-4b9e-99cd-084f1578a5fd.png)
 
