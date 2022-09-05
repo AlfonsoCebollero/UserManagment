@@ -30,7 +30,6 @@ func init() {
 		Collection: client.
 			Database("userManagement").
 			Collection("users")}
-	log.Printf("%v", DBClient)
 }
 
 type MongoClient struct {

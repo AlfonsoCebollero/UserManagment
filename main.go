@@ -31,7 +31,7 @@ func runAPIServer() {
 
 	// Register grpc-gateway
 	rmux := runtime.NewServeMux()
-	err := pb.RegisterUserManagementHandlerFromEndpoint(ctx, rmux, "localhost:5566", dopts)
+	err := pb.RegisterUserManagementHandlerFromEndpoint(ctx, rmux, ":5566", dopts)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func runAPIServer() {
 	sh := http.StripPrefix("/swagger/", http.FileServer(http.Dir("./swagger/")))
 	mux.Handle("/swagger/", sh)
 	log.Println("REST server ready...")
-	err = http.ListenAndServe("localhost:8081", mux)
+	err = http.ListenAndServe(":8081", mux)
 	if err != nil {
 		log.Fatal(err)
 	}
